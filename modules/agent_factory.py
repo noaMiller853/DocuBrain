@@ -24,9 +24,16 @@ def build_hybrid_agent(
         if not results:
             return "לא נמצא שום מידע רלוונטי במסמכים שהועלו."
 
-        return "\n\n".join(
-            [f"קטע מהמסמך:\n{doc.page_content}" for doc in results]
-        )
+        # PyPDFLoader שם metadata['page'] (0-indexed) על כל קטע,
+        # כך שהסוכן יכול לצטט מספר עמוד מדויק בתשובה שלו.
+        formatted = []
+
+        for doc in results:
+            page = doc.metadata.get("page")
+            page_label = f"עמוד {page + 1}" if page is not None else "עמוד לא ידוע"
+            formatted.append(f"[{page_label}]:\n{doc.page_content}")
+
+        return "\n\n".join(formatted)
 
     tools = [search_my_documents]
 
@@ -50,7 +57,9 @@ def build_hybrid_agent(
     # ==========================
 
     llm_kwargs = {
-        "model": "claude-sonnet-4-6",
+        # "claude-sonnet-4-6" לא קיים - זה גרם לשגיאות API בלתי צפויות.
+        # claude-sonnet-5-5 הוא המודל הנוכחי המומלץ (מהירות + איכות).
+        "model": "claude-sonnet-5-5",
         "temperature": 0,
         "anthropic_api_key": anthropic_api_key,
     }

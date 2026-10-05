@@ -257,26 +257,53 @@ if uploaded_file:
 
 
     # ========================================================
-    # Create Agent
+    # Create Agent (only when something relevant actually
+    # changed - not on every rerun / every question typed).
+    #
+    # לפני התיקון: ה-Agent (כולל לקוח ChatAnthropic חדש, כלים
+    # ו-prompt) נבנה מחדש בכל שאלה, כי app.py רץ מחדש מההתחלה
+    # בכל אינטראקציה (זו הדרך שבה Streamlit עובד). זה מוסיף
+    # latency מיותר לכל שאלה, גם כשכלום לא השתנה.
+    #
+    # אחרי התיקון: בונים "חתימה" (agent_signature) מהפרמטרים
+    # שבאמת משפיעים על בניית ה-Agent, ובונים מחדש רק אם היא
+    # השתנתה (למשל: קובץ חדש הועלה, או מפתח API הוחלף).
     # ========================================================
 
-    try:
+    agent_signature = (
+        st.session_state.get("file_name"),
+        anthropic_key,
+        anthropic_workspace_id,
+        tavily_key,
+    )
 
-        agent_executor = build_hybrid_agent(
-            retriever=st.session_state.retriever,
-            skill_instructions=skill_data["instructions"],
-            anthropic_api_key=anthropic_key,
-            anthropic_workspace_id=anthropic_workspace_id,
-            tavily_api_key=tavily_key
-        )
+    if (
+        "agent_executor" not in st.session_state
+        or
+        st.session_state.get("agent_signature") != agent_signature
+    ):
 
-    except Exception as e:
+        try:
 
-        st.error(
-            f"שגיאה ביצירת הסוכן: {e}"
-        )
+            st.session_state.agent_executor = build_hybrid_agent(
+                retriever=st.session_state.retriever,
+                skill_instructions=skill_data["instructions"],
+                anthropic_api_key=anthropic_key,
+                anthropic_workspace_id=anthropic_workspace_id,
+                tavily_api_key=tavily_key
+            )
 
-        st.stop()
+            st.session_state.agent_signature = agent_signature
+
+        except Exception as e:
+
+            st.error(
+                f"שגיאה ביצירת הסוכן: {e}"
+            )
+
+            st.stop()
+
+    agent_executor = st.session_state.agent_executor
 
 
     # ========================================================
