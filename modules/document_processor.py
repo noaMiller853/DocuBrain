@@ -29,7 +29,7 @@ def process_pdf_file(uploaded_file):
     try:
 
         # ====================================================
-        # טעינת PDF
+        # Load PDF
         # ====================================================
 
         loader = PyPDFLoader(
@@ -40,7 +40,7 @@ def process_pdf_file(uploaded_file):
 
 
         # ====================================================
-        # חלוקת המסמך ל-Chunks
+        # Split the document into Chunks
         # ====================================================
 
         text_splitter = RecursiveCharacterTextSplitter(
@@ -54,7 +54,7 @@ def process_pdf_file(uploaded_file):
 
 
         # ====================================================
-        # Embeddings מקומיים
+        # Local embeddings
         # ====================================================
 
         embeddings = HuggingFaceEmbeddings(
