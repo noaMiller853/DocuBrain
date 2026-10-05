@@ -5,17 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a0b680cf-c9a9-447e-96a2-28fb54c1193c" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.env" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/DocuBrain.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/agent_factory.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/agent_factory.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/document_processor.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/document_processor.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/skill_loader.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/skill_loader.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/run.py" beforeDir="false" afterPath="$PROJECT_DIR$/run.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/skills/hybrid_rag_skill.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/skills/hybrid_rag_skill.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
