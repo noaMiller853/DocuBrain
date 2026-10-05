@@ -1,10 +1,14 @@
 import os
+import logging
 
 import streamlit as st
 from dotenv import load_dotenv
 
 from modules import (
     load_skill,
+    has_saved_pdf,
+    list_saved_pdfs,
+    load_all_saved_pdfs,
     process_pdf_file,
     build_hybrid_agent
 )
@@ -209,69 +213,64 @@ if not anthropic_key:
 # Main application
 # ============================================================
 
-# Upload PDF
-
-uploaded_file = st.file_uploader(
-    "העלי קובץ PDF לבדיקה",
-    type=["pdf"]
+saved_pdf_names = list_saved_pdfs()
+st.caption(
+    f"מסמכים שמורים: {len(saved_pdf_names)}. החיפוש כולל את כולם."
 )
 
+upload_new_option = "העלאת קובץ PDF חדש"
+document_options = saved_pdf_names + [upload_new_option]
+selected_document = st.selectbox(
+    "בחרי מסמך שמור או העלי מסמך חדש:",
+    document_options,
+    index=0,
+)
+
+uploaded_file = None
+if selected_document == upload_new_option:
+    uploaded_file = st.file_uploader(
+        "העלי קובץ PDF",
+        type=["pdf"],
+    )
 
 if uploaded_file:
+    upload_signature = os.path.normcase(uploaded_file.name)
+    already_saved = has_saved_pdf(uploaded_file.name)
+    if st.session_state.get("processed_upload_signature") != upload_signature:
+        if already_saved:
+            st.info("הקובץ בשם הזה כבר נשמר; משתמשת באינדקס הקיים.")
+        else:
+            try:
+                with st.spinner("מעבד ושומר את המסמך..."):
+                    process_pdf_file(uploaded_file)
+            except Exception as e:
+                logging.exception("Failed to process uploaded PDF %r", uploaded_file.name)
+                st.error(f"שגיאה בעיבוד המסמך ({type(e).__name__}): {e}")
+                st.stop()
 
-    # ========================================================
-    # Create a Retriever only if it is a new PDF.
-    # ========================================================
+        st.session_state.processed_upload_signature = upload_signature
+        if not already_saved:
+            st.session_state.pop("retriever", None)
+            st.session_state.pop("agent_executor", None)
+
+    saved_pdf_names = list_saved_pdfs()
+
+if saved_pdf_names:
+    retriever_signature = tuple(saved_pdf_names)
 
     if (
         "retriever" not in st.session_state
-        or
-        st.session_state.get("file_name") != uploaded_file.name
+        or st.session_state.get("retriever_signature") != retriever_signature
     ):
-
-        with st.spinner(
-            "מעבד מסמך ובונה אינדקס וקטורי..."
-        ):
-
-            try:
-
-                st.session_state.retriever = (
-                    process_pdf_file(uploaded_file)
-                )
-
-                st.session_state.file_name = (
-                    uploaded_file.name
-                )
-
-                st.success(
-                    "המסמך נקלט במערכת!"
-                )
-
-            except Exception as e:
-
-                st.error(
-                    f"שגיאה בעיבוד המסמך: {e}"
-                )
-
-                st.stop()
-
-
-    # ========================================================
-    # Create Agent (only when something relevant actually
-    # changed - not on every rerun / every question typed).
-    #
-    # לפני התיקון: ה-Agent (כולל לקוח ChatAnthropic חדש, כלים
-    # ו-prompt) נבנה מחדש בכל שאלה, כי app.py רץ מחדש מההתחלה
-    # בכל אינטראקציה (זו הדרך שבה Streamlit עובד). זה מוסיף
-    # latency מיותר לכל שאלה, גם כשכלום לא השתנה.
-    #
-    # אחרי התיקון: בונים "חתימה" (agent_signature) מהפרמטרים
-    # שבאמת משפיעים על בניית ה-Agent, ובונים מחדש רק אם היא
-    # השתנתה (למשל: קובץ חדש הועלה, או מפתח API הוחלף).
-    # ========================================================
+        try:
+            st.session_state.retriever = load_all_saved_pdfs()
+            st.session_state.retriever_signature = retriever_signature
+        except Exception as e:
+            st.error(f"שגיאה בטעינת המסמכים השמורים: {e}")
+            st.stop()
 
     agent_signature = (
-        st.session_state.get("file_name"),
+        retriever_signature,
         anthropic_key,
         anthropic_workspace_id,
         tavily_key,
@@ -342,3 +341,5 @@ if uploaded_file:
                 st.error(
                     f"שגיאה בהרצת הסוכן: {e}"
                 )
+else:
+    st.info("העלי מסמך PDF כדי להתחיל.")
