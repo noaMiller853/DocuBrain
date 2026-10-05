@@ -56,6 +56,7 @@ htmlcov/
 
 chroma/
 chroma_db/
+chroma_store/
 .chromadb/
 
 
