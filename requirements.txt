@@ -1,0 +1,13 @@
+streamlit
+langchain
+langchain-community
+langchain-core
+langchain-classic
+langchain-anthropic
+langchain-huggingface
+tavily-python
+chromadb
+pypdf
+pyyaml
+python-dotenv
+sentence-transformers
