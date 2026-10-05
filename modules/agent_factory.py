@@ -50,7 +50,9 @@ def build_hybrid_agent(
     # ==========================
 
     llm_kwargs = {
-        "model": "claude-sonnet-4-6",
+        # "claude-sonnet-4-6" לא קיים - זה גרם לשגיאות API בלתי צפויות.
+        # claude-sonnet-5-5 הוא המודל הנוכחי המומלץ (מהירות + איכות).
+        "model": "claude-sonnet-5-5",
         "temperature": 0,
         "anthropic_api_key": anthropic_api_key,
     }
